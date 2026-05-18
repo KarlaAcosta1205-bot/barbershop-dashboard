@@ -1397,7 +1397,7 @@
     // ============================================
     // CONFIG: PASTE YOUR GOOGLE APPS SCRIPT URL HERE
     // ============================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwimmMJaJlq2zfC36k2ZhvUQswNHneXexkqSDsOTrutol9yPJrQrP3ouaT9BFSW5py7Yg/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzPWSkEjiKzyWnt2uL9ZUKaMzHAefty2_YxGb2Y1XQ9jOgySDMWo2qqOS1gAU5dang1VQ/exec';
 
     // ============================================
     // DATA STATE (synced from cloud)
@@ -1436,88 +1436,89 @@
           setSync('ok', 'Cloud synced');
           return true;
         } else {
-          setSync('error', 'Sync failed');
+          setSync('error', json.error || 'Sync failed');
           return false;
         }
       } catch(e) {
-        setSync('error', 'Offline');
+        setSync('error', 'Offline / CORS blocked');
         console.error(e);
         return false;
       }
     }
 
     async function apiAdd(sheet, row) {
-  if(API_URL.includes('YOUR_GOOGLE')) return false;
-  setSync('loading', 'Saving...');
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },  // ← ESTO FALTABA
-      body: JSON.stringify({ action: 'add', sheet, row })
-    });
-    const json = await res.json();
-    if(json.success) {
-      setSync('ok', 'Saved to cloud');
-      await apiGetAll();
-      return true;
-    } else {
-      setSync('error', json.error || 'Save failed');
-      return false;
+      if(API_URL.includes('YOUR_GOOGLE')) return false;
+      setSync('loading', 'Saving...');
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'add', sheet, row })
+        });
+        const json = await res.json();
+        if(json.success) {
+          setSync('ok', 'Saved to cloud');
+          await apiGetAll();
+          return true;
+        } else {
+          setSync('error', json.error || 'Save failed');
+          return false;
+        }
+      } catch(e) {
+        setSync('error', 'Save failed');
+        console.error(e);
+        return false;
+      }
     }
-  } catch(e) {
-    setSync('error', 'Save failed');
-    console.error(e);
-    return false;
-  }
-}
 
     async function apiDelete(sheet, id) {
-  if(API_URL.includes('YOUR_GOOGLE')) return false;
-  setSync('loading', 'Deleting...');
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },  // ← ESTO FALTABA
-      body: JSON.stringify({ action: 'delete', sheet, id })
-    });
-    const json = await res.json();
-    if(json.success) {
-      setSync('ok', 'Deleted');
-      await apiGetAll();
-      return true;
-    } else {
-      setSync('error', json.error || 'Delete failed');
-      return false;
+      if(API_URL.includes('YOUR_GOOGLE')) return false;
+      setSync('loading', 'Deleting...');
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', sheet, id })
+        });
+        const json = await res.json();
+        if(json.success) {
+          setSync('ok', 'Deleted');
+          await apiGetAll();
+          return true;
+        } else {
+          setSync('error', json.error || 'Delete failed');
+          return false;
+        }
+      } catch(e) {
+        setSync('error', 'Delete failed');
+        return false;
+      }
     }
-  } catch(e) {
-    setSync('error', 'Delete failed');
-    return false;
-  }
-}
 
     async function apiUpdate(sheet, id, field, value) {
-  if(API_URL.includes('YOUR_GOOGLE')) return false;
-  setSync('loading', 'Updating...');
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },  // ← ESTO FALTABA
-      body: JSON.stringify({ action: 'update', sheet, id, field, value })
-    });
-    const json = await res.json();
-    if(json.success) {
-      setSync('ok', 'Updated');
-      await apiGetAll();
-      return true;
-    } else {
-      setSync('error', json.error || 'Update failed');
-      return false;
+      if(API_URL.includes('YOUR_GOOGLE')) return false;
+      setSync('loading', 'Updating...');
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'update', sheet, id, field, value })
+        });
+        const json = await res.json();
+        if(json.success) {
+          setSync('ok', 'Updated');
+          await apiGetAll();
+          return true;
+        } else {
+          setSync('error', json.error || 'Update failed');
+          return false;
+        }
+      } catch(e) {
+        setSync('error', 'Update failed');
+        return false;
+      }
     }
-  } catch(e) {
-    setSync('error', 'Update failed');
-    return false;
-  }
-}
+
     // ============================================
     // UTILS
     // ============================================
@@ -1584,7 +1585,7 @@
               <div class="dash-item-dot alert-dot"></div>
               <div class="dash-item-info">
                 <span class="dash-item-name">${p.name}</span>
-                <span class="dash-item-meta">${p.category} • ${p.supplier}</span>
+                <span class="dash-item-meta">${p.category} &bull; ${p.supplier}</span>
               </div>
             </div>
             <span class="dash-item-badge">${p.qty} left</span>
@@ -1606,7 +1607,7 @@
               <div class="dash-item-dot ${dot}"></div>
               <div class="dash-item-info">
                 <span class="dash-item-name">${a.client}</span>
-                <span class="dash-item-meta">${a.service} • ${a.time}</span>
+                <span class="dash-item-meta">${a.service} &bull; ${a.time}</span>
               </div>
             </div>
             <div class="dash-item-right">
